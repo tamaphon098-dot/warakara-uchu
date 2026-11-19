@@ -2,6 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#160d05"><meta name="description" content="わら1本から宇宙を目指す、物々交換ローグライク。">
 <link rel="icon" href="img/i_wara.webp">
+<script>window.__TRIAL=true;</script>
 <style>html{-webkit-text-size-adjust:100%}body{margin:0;overscroll-behavior:none}img{max-width:100%}[hidden]{display:none!important}</style>
 </head><body><title>わらから宇宙へ</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -561,6 +562,10 @@ html,body{height:100%}
 .lu-chest .emo{font-size:24px;line-height:1}
 .lu-chest small{font-size:10px;line-height:1.1}
 @keyframes chestbob{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-3px) rotate(5deg)}}
+.xfcode{display:block;width:100%;box-sizing:border-box;margin:8px 0;font:12px/1.4 ui-monospace,Consolas,monospace;border:2px solid #b8894a;border-radius:8px;padding:8px;background:#fffaf0;color:var(--ink);word-break:break-all;resize:vertical;user-select:text;-webkit-user-select:text}
+.trialnote{display:grid;gap:6px;margin:0 0 10px;padding:10px 12px;border-radius:10px;background:linear-gradient(#fff4cf,#ffe39a);border:2px solid #d49a2a;font-size:12.5px;line-height:1.5;color:#5a2d00}
+.trialnote b{font-family:var(--display);font-size:15px}
+a.btn{text-decoration:none}
 </style>
 
 <div id="bg"><div id="bgsvg"></div><div id="tint"></div><div id="fx"></div><div id="petals"></div></div>
@@ -883,7 +888,7 @@ function fixSel(){ if(!selInst()){ const b=bestInst(); S.run.sel=b?b.u:null; } }
 function addDex(id){ if(!S.dex.includes(id)) S.dex.push(id); const R=S.run; if(R && (!R.top||ITEM[id].v>ITEM[R.top].v)) R.top=id; if(ITEM[id].v>ITEM[S.rec.bestItem].v) S.rec.bestItem=id; }
 function track(){ const a=asset(); if(S.run && a>S.run.best) S.run.best=a; if(a>S.rec.best) S.rec.best=a; }
 
-function save(){ try{ S.lastSeen=Date.now(); localStorage.setItem(SAVE_KEY,JSON.stringify(S)); }catch(e){} }
+function save(){ if(window.__noSave) return; try{ S.lastSeen=Date.now(); localStorage.setItem(SAVE_KEY,JSON.stringify(S)); }catch(e){} }
 function load(raw){
   let d=null;
   try{ d=JSON.parse(raw||localStorage.getItem(SAVE_KEY)); }catch(e){}
@@ -901,7 +906,7 @@ function newRun(){
   const sid=START[startTier()];
   S.run={uid:0,day:1,slot:0,maxDays:daysTotal(),items:[],parts:{},sel:null,m:null,mys:null,view:"m",
     event:"sunny",next:rollEvent(),market:Object.fromEntries(Object.keys(CATS).map(c=>[c,1])),prev:null,stock:[],
-    abu:sid==="wara",best:0,top:sid,miracle:null,rumor:null,adShop:false,firstM:true,over:false,region:Math.min(S.region||0,unlockedRegion()),quests:[],omi:null,fameBonus:0,visits:0,rep:60,mysTries:0,mysGone:false};
+    abu:sid==="wara",best:0,top:sid,miracle:null,rumor:null,adShop:false,firstM:true,over:false,region:Math.min(S.region||0,unlockedRegion(),isTrial()?TRIAL_MAX:99),quests:[],omi:null,fameBonus:0,visits:0,rep:60,mysTries:0,mysGone:false};
   for(let i=0;i<startCount();i++) S.run.items.push(inst(sid));
   addDex(sid); fixSel(); S.run.stock=genStock(); newLineup(); S.run.mys=genMystery();
   S.run.perkOpts=S.rec.runs>=1?shuffle(PERKS.map(p=>p.id)).slice(0,3):null; S.run.perk=null;
@@ -1027,6 +1032,7 @@ function giveQuest(u){
   track(); save(); render();
 }
 function travel(k){
+  if(isTrial()&&k>TRIAL_MAX){ showTrialEnd(); return; }
   const R=S.run; if(k>unlockedRegion()||k===R.region) return;
   R.region=k; S.region=k; R.slot=PK("pilgrim")?Math.max(0,R.slot-1):slotsPerDay()-1; lastBg="";
   cutin(REGIONS[k].n,PK("pilgrim")?T("へ旅立った（旅慣れで日数かからず）"):T("へ旅立った（1日かかる）"),null,REGIONS[k].bg);
@@ -1501,6 +1507,7 @@ function viewMap(){
       ${here?`<span class="pill back">${T("いまここ")}</span>`:open?`<button class="btn sm gold" type="button" data-act="travel" data-k="${k}">${T("ここへ旅する（1日）")}</button>`:`<span class="pill back">${T("🔒 名声 {0}",fmtN(r.fame))}</span>`}</div></div>`; }).join("");
   return `<section class="view" style="padding-top:8px"><div class="panel">
     <div class="sellhead">${IMGS.has("c_guard")?'<img src="img/c_guard.webp" alt="">':""}<div><b>${T("関所の役人")}</b><span class="small">${T("「名声が上がれば、もっと先へ通してやろう！」")}</span></div></div>
+    ${isTrial()?`<div class="trialnote"><b>${T("🎟️ 体験版")}</b><span>${T("「{0}」から先はアプリ版で遊べる。進み具合は引き継ぎコードでそのまま移せる。",esc(REGIONS[TRIAL_MAX+1].n))}</span><button class="btn sm gold" type="button" data-act="trial">${T("アプリで続きを遊ぶ")}</button></div>`:""}
     <h2><span class="emo">${art("u_map","🗺️")}</span>${T("旅の地図")}<small>${T("名声 {0}",fmtN(S.fame))}</small></h2>
     <p class="note">${T("名声は、その旅で手にしたいちばん高い品（旅先の上限まで）と、依頼の達成で上がる。先の旅先ほど高い品が出回る。{0}",nxt?T("次の「{0}」まで あと {1}",esc(nxt.n),fmtN(Math.max(0,nxt.fame-S.fame))):T("すべての旅先に行ける。"))}</p>
     <div class="list">${rows}</div></div></section>`;
@@ -1821,6 +1828,43 @@ function showPicker(){
   const rows=R.items.slice().sort((a,b)=>val(b)-val(a)).map(x=>{const c=calc(m,x); return `<button class="row ${x.u===R.sel?"sel":""}" type="button" data-act="sel" data-u="${x.u}" style="width:100%;text-align:left"><div class="ric emo">${ic(x.id)}</div><div class="rt"><b>${esc((x.fake?T("偽"):"")+def(x).n)}</b><span>${T("価値 {0}",yen(val(x)))}</span></div><div class="ract"><b style="font-variant-numeric:tabular-nums">${fmtP(c.p)}</b></div></button>`;}).join("");
   modal(`<h3>${T("どれを出す？")}</h3><p class="center" style="font-size:12px">${T("右の数字はこの相手との成功率")}</p><div class="list">${rows}</div><div class="btns"><button class="btn" type="button" data-act="close">${T("とじる")}</button></div>`);
 }
+function isTrial(){ return !isNative()&&!!window.__TRIAL; }
+const TRIAL_MAX=1, STORE_URL="https://play.google.com/store/apps/details?id=jp.warashibe.uchu";
+async function exportCode(){
+  save(); let bytes=new TextEncoder().encode(JSON.stringify(S)), tag="J";
+  try{ if(window.CompressionStream){ const cs=new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw")); bytes=new Uint8Array(await new Response(cs).arrayBuffer()); tag="Z"; } }catch(e){}
+  let bin=""; for(let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+  return "WU1"+tag+btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+async function importCode(code){
+  const m=String(code||"").replace(/\s+/g,"").match(/^WU1([JZ])([A-Za-z0-9_-]+)$/); if(!m) throw new Error("format");
+  let b64=m[2].replace(/-/g,"+").replace(/_/g,"/"); while(b64.length%4) b64+="=";
+  const bin=atob(b64); let bytes=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  if(m[1]==="Z"){ const ds=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw")); bytes=new Uint8Array(await new Response(ds).arrayBuffer()); }
+  const d=JSON.parse(new TextDecoder().decode(bytes)); if(!d||!d.up||!d.rec) throw new Error("data"); return d;
+}
+function showTransfer(){
+  modal(`<h3>${T("データ引き継ぎ")}</h3><p class="note">${T("引き継ぎコードで、Web版（体験版）とアプリ版のあいだで進み具合をそのまま移せる。お金・名声・強化・お店・図鑑・実績・宝箱や広告でもらった特典もすべて引き継がれる。")}</p>
+  <div class="btns"><button class="btn gold" type="button" data-act="xfout"><span class="emo">📤</span><span>${T("引き継ぎコードを出す")}<small>${T("コピーして、移したい方で読み込む")}</small></span></button></div>
+  <textarea id="xfcode" class="xfcode" rows="4" spellcheck="false" placeholder="${T("ここに引き継ぎコードを貼り付け")}"></textarea>
+  <div class="btns two"><button class="btn" type="button" data-act="xfpaste"><span class="emo">📋</span><span>${T("貼り付け")}</span></button><button class="btn" type="button" data-act="xfin" id="xfin"><span class="emo">📥</span><span>${T("読み込む")}<small>${T("今のデータは上書きされる")}</small></span></button></div>
+  <div class="btns"><button class="btn" type="button" data-act="settings">${T("もどる")}</button></div>`,{center:true});
+}
+async function xfOut(){ try{ const c=await exportCode(); const ta=$("#xfcode"); if(ta){ ta.value=c; ta.select(); } try{ await navigator.clipboard.writeText(c); toast(T("引き継ぎコードをコピーした")); }catch(e){ try{ document.execCommand("copy"); toast(T("引き継ぎコードをコピーした")); }catch(e2){ toast(T("コードを長押ししてコピーしてね")); } } }catch(e){ toast(T("コードを作れなかった")); } }
+async function xfPaste(){ const ta=$("#xfcode"); try{ const t=await navigator.clipboard.readText(); if(ta&&t) ta.value=t.trim(); }catch(e){ toast(T("入力欄を長押しして貼り付けてね")); if(ta) ta.focus(); } }
+async function xfIn(btn){
+  const ta=$("#xfcode"); const code=ta&&ta.value.trim(); if(!code){ toast(T("引き継ぎコードを貼り付けてね")); return; }
+  let d; try{ d=await importCode(code); }catch(e){ toast(T("引き継ぎコードが正しくない")); shake(); return; }
+  if(!btn.dataset.armed){ btn.dataset.armed="1"; btn.classList.add("confirm"); btn.querySelector("small").textContent=T("もう一度押すと上書き"); return; }
+  window.__noSave=true; try{ d.lastSeen=Date.now(); localStorage.setItem(SAVE_KEY,JSON.stringify(d)); }catch(e){ window.__noSave=false; toast(T("読み込めなかった")); return; }
+  toast(T("引き継ぎ完了！")); setTimeout(()=>location.reload(),600);
+}
+function showTrialEnd(){
+  modal(`<h3>${T("🎟️ 体験版はここまで")}</h3><p class="center">${T("「{0}」から先、長崎・東京・宇宙へと続く旅はアプリ版で遊べる。",esc(REGIONS[TRIAL_MAX+1].n))}</p>
+  <p class="note">${T("アプリを入れたら「設定 → データ引き継ぎ」でコードを読み込めば、ここまでの進み具合がそのまま続く。")}</p>
+  <div class="btns"><a class="btn gold" href="${STORE_URL}" target="_blank" rel="noopener"><span class="emo">▶️</span><span>${T("Google Playで続きを遊ぶ")}</span></a></div>
+  <div class="btns two"><button class="btn" type="button" data-act="xfmenu"><span class="emo">🔁</span><span>${T("引き継ぎコードを出す")}</span></button><button class="btn" type="button" data-act="close">${T("とじる")}</button></div>`,{center:true});
+}
 function showSettings(){
   const r=S.rec, mir=r.miracle;
   modal(`<h3>${T("記録")}</h3><dl class="kv">
@@ -1831,6 +1875,7 @@ function showSettings(){
     <div class="btns two"><button class="btn" type="button" data-act="aud" data-k="bgm"><span class="emo">${S.audio.bgm?"🎵":"🔇"}</span><span>BGM ${S.audio.bgm?T("オン"):T("オフ")}</span></button><button class="btn" type="button" data-act="aud" data-k="se"><span class="emo">${S.audio.se?"🔔":"🔕"}</span><span>${T("効果音 {0}",S.audio.se?T("オン"):T("オフ"))}</span></button></div>
     <label class="langrow"><span class="emo">🌐</span><select id="langSel" aria-label="Language">${Object.entries(LANGS).map(([k,n])=>`<option value="${k}" ${k===LANG?"selected":""}>${n}</option>`).join("")}</select></label>
     <div class="btns two"><button class="btn" type="button" data-act="story"><span class="emo">📖</span><span>${T("あらすじ")}</span></button><button class="btn" type="button" data-act="rules"><span class="emo">❓</span><span>${T("遊び方")}</span></button></div>
+    <div class="btns"><button class="btn" type="button" data-act="xfmenu"><span class="emo">🔁</span><span>${T("データ引き継ぎ")}<small>${T("Web版とアプリ版のあいだで進み具合を移す")}</small></span></button></div>
     <div class="btns two"><button class="btn" type="button" data-act="quit">${T("旅を切り上げる")}<small>${T("持ち物は3割で精算")}</small></button>
     <button class="btn ${confirmKey==="wipe"?"confirm":""}" type="button" data-act="wipe">${confirmKey==="wipe"?T("本当に消す？"):T("データを消す")}<small>${T("最初からやり直す")}</small></button></div>
     ${isNative()?(adFree()?`<p class="center"><b>${T("⭐ 広告なし（購入済み）")}</b><br><span class="small">${T("📺のボタンは広告なしで受け取れる")}</span></p>`:`<div class="btns two"><button class="btn gold" type="button" data-act="buyadfree"><span class="emo">⭐</span><span>${T("広告をなくす")}<small>${T("{0}・買い切り",esc(PRICE))}</small></span></button><button class="btn" type="button" data-act="restore"><span>${T("購入を復元")}</span></button></div><p class="small">${T("広告なしにすると、旅の終わりの広告が出なくなり、📺のボタンは広告を見ずに受け取れる。")}</p>`)+(()=>{ try{ return window.Native.needsPrivacyOptions()?`<button class="linkbtn" type="button" data-act="privacy">${T("プライバシー設定（広告）")}</button>`:""; }catch(e){ return ""; } })()
@@ -2082,6 +2127,11 @@ document.addEventListener("click",ev=>{
     case "privacy": try{ window.Native.privacyOptions(); }catch(e){} break;
     case "end-ok": finishRun(1); break;
     case "settings": confirmKey=null; showSettings(); break;
+    case "xfmenu": showTransfer(); break;
+    case "xfout": xfOut(); break;
+    case "xfpaste": xfPaste(); break;
+    case "xfin": xfIn(b); break;
+    case "trial": showTrialEnd(); break;
     case "quit": closeModal(); endRun("quit"); break;
     case "wipe": if(confirmKey!=="wipe"){ confirmKey="wipe"; showSettings(); break; } confirmKey=null; try{localStorage.removeItem(SAVE_KEY);}catch(e){} S=fresh(); newRun(); closeModal(); TAB="trade"; save(); render(); startOpening(); break;
   }
@@ -2120,6 +2170,7 @@ function start(data){
   localizeStatic();
   const had=load(data&&data.save);
   if(!S.run) newRun();
+  if(isTrial()&&S.run.region>TRIAL_MAX){ S.run.region=TRIAL_MAX; S.region=TRIAL_MAX; }
   relocalize();
   const away=had?(Date.now()-(S.lastSeen||Date.now()))/60000:0;
   render();
