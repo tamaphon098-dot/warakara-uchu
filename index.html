@@ -557,6 +557,10 @@ html,body{height:100%}
   .view.tv .side-btns{top:46px}
   .view.tv .bubble{top:80px;max-height:calc(100cqh - 84px)}
 }
+.lu-chest{flex:0 0 52px;display:grid;place-items:center;align-content:center;gap:0;border-radius:10px;background:linear-gradient(#ffe9a8,#d9961f);border:2px solid #fff3c4;box-shadow:0 0 14px rgba(255,210,80,.9);color:#5a2d00;font-weight:900;padding:2px;animation:chestbob 1.1s ease-in-out infinite}
+.lu-chest .emo{font-size:24px;line-height:1}
+.lu-chest small{font-size:10px;line-height:1.1}
+@keyframes chestbob{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-3px) rotate(5deg)}}
 </style>
 
 <div id="bg"><div id="bgsvg"></div><div id="tint"></div><div id="fx"></div><div id="petals"></div></div>
@@ -1546,7 +1550,7 @@ function viewTrade(){
     <div class="side-btns">
       ${mys?`<button class="pill back" type="button" data-act="unmys">${T("← 商人にもどる")}</button>`:`<button class="pill" type="button" data-act="mys"><span class="emo">👤</span>${T("謎の客 {0}",MOODF[R.mys.mood])}</button>`}
       ${showAbu?`<button class="pill abu" type="button" data-act="abu"><span class="emo">🪰</span>${T("アブを捕まえる")}</button>`:""}
-      ${R.chest&&!mys?`<button class="pill chest" type="button" data-act="chest"><span class="emo">🎁</span>${T("宝箱")}</button>`:""}
+      ${R.chest&&!mys&&!(R.ms&&R.ms.length>1)?`<button class="pill chest" type="button" data-act="chest"><span class="emo">🎁</span>${T("宝箱")}</button>`:""}
       ${!mys?`<button class="pill kaiba" type="button" data-act="kaiba"><span class="emo">🎲</span>${T("賭場{0}",gLeft()?"":T("（閉）"))}</button>`:""}
       ${R.quests.length?`<button class="pill quest" type="button" data-act="quests"><span class="emo">📜</span>${T("依頼 {0}",R.quests.length)}</button>`:""}
       ${R.omi!=null?`<span class="pill omi">⛩️ ${OMIKUJI[R.omi][0]}</span>`:""}
@@ -1557,7 +1561,7 @@ function viewTrade(){
     `<div class="merchant"><div class="m-face emo ${mys?"mystery":""}">${m.icon}</div>${plate("m-plate")}</div>`}
   </div>`;
   const lineup=(!mys&&R.ms&&R.ms.length>1)?`<div class="lineup">${R.ms.map((mm,i)=>{ const isV=!MT[mm.t]; const pp=(!isV&&x&&!mm.refuse)?calc(mm,x).p:null;
-    return `<button class="lu ${i===R.mi?"on":""} ${mm.refuse?"no":""}" type="button" data-act="focusm" data-i="${i}" aria-label="${esc(mm.name)}">${IMGS.has(mm.img)?`<img class="lu-face" src="img/${mm.img}.webp" alt="">`:`<span class="lu-face emo">${mm.icon}</span>`}<span class="lu-off emo">${isV?mm.icon:ic(mm.offer.id)}</span><b>${isV?({dice:T("丁半"),miko:T("おみくじ"),courier:T("依頼")})[mm.t]:mm.refuse?T("門前払い"):pp==null?"-":fmtP(pp).length>7?"≒0%":fmtP(pp)}</b></button>`; }).join("")}</div>`:"";
+    return `<button class="lu ${i===R.mi?"on":""} ${mm.refuse?"no":""}" type="button" data-act="focusm" data-i="${i}" aria-label="${esc(mm.name)}">${IMGS.has(mm.img)?`<img class="lu-face" src="img/${mm.img}.webp" alt="">`:`<span class="lu-face emo">${mm.icon}</span>`}<span class="lu-off emo">${isV?mm.icon:ic(mm.offer.id)}</span><b>${isV?({dice:T("丁半"),miko:T("おみくじ"),courier:T("依頼")})[mm.t]:mm.refuse?T("門前払い"):pp==null?"-":fmtP(pp).length>7?"≒0%":fmtP(pp)}</b></button>`; }).join("")}${R.chest?`<button class="lu-chest" type="button" data-act="chest" aria-label="${T("宝箱")}"><span class="emo">🎁</span><small>${T("宝箱")}</small></button>`:""}</div>`:"";
   if(vis) return `<section class="view tv">${stage}${lineup}${visitorBoard(m)}</section>`;
   if(!x){
     return `<section class="view tv">${stage}<div class="board"><div class="empty-bag"><span class="emo" style="font-size:40px">🎒</span><br>${T("かばんが空っぽだ。")}<br>${shopOpen()?T("「お店」の市で何か買おう。"):T("部品を売るか、何か作ってみよう。")}</div>
