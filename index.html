@@ -497,6 +497,62 @@ html,body{height:100%}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
 @media (max-width:360px){.logo{font-size:22px}.logo .l2{font-size:25px}.card .ic{font-size:48px}.btn{font-size:13px}}
+/* ---- trade screen fits one screen (portrait): the stage absorbs the free space ---- */
+@media (orientation:portrait){
+  .view.tv{display:flex;flex-direction:column;gap:8px;min-height:100%}
+  .view.tv>.stage{flex:1 0 118px;height:auto;container-type:size;overflow:visible}
+  .view.tv .m-art{width:auto;height:min(122cqh,300px);max-width:70vw;bottom:-12px;right:-10px;aspect-ratio:1/1}
+  .view.tv .bubble{bottom:12px;max-height:calc(100cqh - 46px);overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5}
+  .view.tv .m-plate.over{bottom:2px}
+  .view.tv .lineup{margin-top:0}
+  .view.tv .guide{padding:5px 8px;font-size:12px;line-height:1.35}
+  .view.tv .board{gap:7px;padding:13px 10px 9px}
+  .view.tv .card{padding:16px 4px 6px;gap:1px}
+  .view.tv .card .ic{height:clamp(44px,8.5dvh,84px);font-size:clamp(34px,6dvh,54px)}
+  .view.tv .card .ic .icimg{width:clamp(44px,8.5dvh,84px);height:clamp(44px,8.5dvh,84px)}
+  .view.tv .card .nm{font-size:clamp(13px,3.9vw,16px)}
+  .view.tv .rate{min-height:44px;padding:3px 8px 3px 10px}
+  .view.tv .rate .pct{font-size:clamp(28px,5dvh,42px)!important}
+  .view.tv .btn-main{height:clamp(44px,6.2dvh,58px);font-size:clamp(19px,5.6vw,25px)}
+  .view.tv .warnline{padding:2px 6px;font-size:10.5px}
+  /* the five actions in one row */
+  .view.tv .board>.grid4{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+  .view.tv .board>.grid4 .btn{min-height:0;padding:5px 2px 4px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1px;text-align:center;font-size:11px;line-height:1.15;border-radius:9px}
+  .view.tv .board>.grid4 .btn .emo{font-size:19px;margin:0}
+  .view.tv .board>.grid4 .btn>span:last-child{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%}
+  .view.tv .board>.grid4 .btn small{font-size:8.5px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
+  .view.tv .board>.grid4 .btn.auto{grid-column:auto;flex-direction:column}
+  html:not(.lang-ja) .view.tv .board>.grid4 .btn{font-size:10px}
+  html:not(.lang-ja) .view.tv .board>.grid4 .btn small{font-size:8px}
+}
+@media (orientation:portrait) and (max-height:880px){
+  .view.tv>.stage{flex-basis:104px}
+  .view.tv .card .rib{font-size:10px;padding:2px 8px}
+  .view.tv .card .swap{display:none}
+  .view.tv .side-btns{right:auto;max-width:calc(100% - clamp(110px,34vw,150px))}
+  .view.tv .m-plate.over{padding:2px 7px;max-width:46%}
+  .view.tv .m-plate.over .m-meta span:not(.emo){display:none}
+  .view.tv .m-plate.over .m-meta{display:inline;margin-left:4px}
+  .view.tv .m-plate.over b{display:inline;font-size:12px}
+  .view.tv .bubble{font-size:clamp(11px,3.2vw,13px);line-height:1.4;padding:6px 9px;top:36px;bottom:auto;max-height:calc(100cqh - 40px);display:block;overflow-y:auto;-webkit-line-clamp:unset}
+  .view.tv .side-btns{z-index:2}
+}
+@media (orientation:portrait) and (max-height:880px){
+  main{padding-bottom:6px}
+  .view.tv{gap:6px}
+  .view.tv>.stage{flex-basis:90px}
+  .view.tv .guide{font-size:11px;padding:3px 8px;line-height:1.3}
+  .view.tv .lu{padding:2px 5px}.view.tv .lu-face{width:28px;height:28px}
+  .view.tv .board{gap:5px;padding:10px 8px 7px}
+  .view.tv .card{padding:13px 3px 4px}
+  .view.tv .card .ic{height:40px;font-size:32px}.view.tv .card .ic .icimg{width:40px;height:40px}
+  .view.tv .rate{min-height:40px;max-height:46px}
+  .view.tv .rate .pct{font-size:30px!important}
+  .view.tv .btn-main{height:42px}
+  .view.tv .board>.grid4 .btn{padding:3px 2px}.view.tv .board>.grid4 .btn .emo{font-size:16px}
+  .tabs{padding-top:3px;padding-bottom:calc(3px + env(safe-area-inset-bottom,0px))}
+  .tab{padding:2px 0}.tab .emo{font-size:18px}
+}
 </style>
 
 <div id="bg"><div id="bgsvg"></div><div id="tint"></div><div id="fx"></div><div id="petals"></div></div>
@@ -911,7 +967,8 @@ function setLine(m,x){
   else if(liked||d>=1.5) want=T("その{0}、ちょうど欲しかったんだ。{1}",mine.n,pk(WANT[mine.cat]||WANT.material));
   else want=T("その{0}……正直それほど欲しくはないが",mine.n);
   let tail=m.jackLine?T("今日は特別に、とっておきを出そう。"):m.t==="greedy"?T("……ただし高くつくぜ。"):m.t==="stingy"?T("ま、損はさせんよ。"):T("換えてくれないか？");
-  m.line=T("{0}。{1}から、{2}",((TONE[m.t]||"")+want),give,tail);
+  const tone=TONE[m.t]||"", sp=(tone&&!/^(ja|zh)/.test(LANG)&&!/\s$/.test(tone))?" ":"";
+  m.line=T("{0}。{1}から、{2}",(tone+sp+want),give,tail);
 }
 function genMystery(){ return {t:"mystery",name:T("謎の客"),icon:"👤",img:"m_mystery",likes:[],lm:1,mood:2,pat:1+patB(),neg:0,add:0,retry:false,offer:{u:-1,id:"universe",fake:false},known:false,line:T("……宇宙と、交換したいのか？")}; }
 function cur(){ return S.run.view==="mys"?S.run.mys:S.run.m; }
