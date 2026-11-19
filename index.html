@@ -516,7 +516,7 @@ html,body{height:100%}
   .view.tv .btn-main{height:clamp(44px,6.2dvh,58px);font-size:clamp(19px,5.6vw,25px)}
   .view.tv .warnline{padding:2px 6px;font-size:10.5px}
   /* the five actions in one row */
-  .view.tv .board>.grid4{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+  .view.tv .board>.grid4{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
   .view.tv .board>.grid4 .btn{min-height:0;padding:5px 2px 4px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1px;text-align:center;font-size:11px;line-height:1.15;border-radius:9px}
   .view.tv .board>.grid4 .btn .emo{font-size:19px;margin:0}
   .view.tv .board>.grid4 .btn>span:last-child{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%}
@@ -552,6 +552,10 @@ html,body{height:100%}
   .view.tv .board>.grid4 .btn{padding:3px 2px}.view.tv .board>.grid4 .btn .emo{font-size:16px}
   .tabs{padding-top:3px;padding-bottom:calc(3px + env(safe-area-inset-bottom,0px))}
   .tab{padding:2px 0}.tab .emo{font-size:18px}
+}
+@media (orientation:portrait) and (min-height:741px) and (max-height:880px){
+  .view.tv .side-btns{top:46px}
+  .view.tv .bubble{top:80px;max-height:calc(100cqh - 84px)}
 }
 </style>
 
@@ -1594,7 +1598,6 @@ function viewTrade(){
       <button class="btn" type="button" data-act="next" ${mys?"disabled":""}><span class="emo">👣</span><span>${T("別の相手を探す")}<small>${T("1刻すすむ")}</small></span></button>
       <button class="btn ${confirmKey==="sell"?"confirm":""}" type="button" data-act="sell"><span class="emo">🪙</span><span>${sellLbl}<small>${T("{0}で売却",yen(sp))}</small></span></button>
       <button class="btn ${confirmKey==="break"?"confirm":""}" type="button" data-act="break" ${it.parts?"":"disabled"}><span class="emo">🔨</span><span>${brkLbl}<small>${it.parts?partsTxt(it):T("このアイテムは分解できません")}</small></span></button>
-      <button class="btn auto" type="button" data-act="auto" ${mys?"disabled":""}><span class="emo">⏩</span><span>${T("おまかせ")}<small>${T("今日の残りを自動で交換（成功率50%以上だけ）")}</small></span></button>
     </div>
   </div></section>`;
 }
@@ -2046,7 +2049,6 @@ document.addEventListener("click",ev=>{
     case "focusm": focusM(+b.dataset.i); break;
     case "perk": setPerk(b.dataset.k); closeModal(); { const p=PERKS.find(q=>q.id===b.dataset.k); cutin(p.n,p.d,null,null); } sfx("fanfare"); render(); break;
     case "perkinfo": { const p=PERKS.find(q=>q.id===R.perk); toast(T("{0} {1}：{2}",p.i,p.n,p.d)); break; }
-    case "auto": autoDay(); break;
     case "chest-free": openChest(); break;
     case "chest": showChest(); break;
     case "chest-open": fakeAd(()=>openChest(),"chest"); break;
